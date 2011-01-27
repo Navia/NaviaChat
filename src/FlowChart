@@ -1,0 +1,33 @@
+Here is my messy flowchart. Too lazy to make a graphical flowchart.
+
+Classes:
+	Channel - Holds all the values for a channel.
+	Chatting - The main class for the plugin.
+	ChattingPlayerListener - Self explanitory.
+	MessageFormatting - Holds methods to format strings (Get the right prefixes, channels etc.)
+	
+	
+FlowChart for commands:
+
+	On command:
+		If command is:
+			/c - Main command. Might be changed.
+				Check for arguments:
+					<ChannelName> - If there are only 1 argument, it will be treated as a channel name, and will then join that channel.
+					leave <ChannelName>
+					go IC - Will print out all following messages with IC information. Only applicable while in IC channels.
+					go OOC - Opposite of above.
+
+On enable:
+	Load .xml files into an ArrayList/HashMap
+	Check if Characterization-ing is installed.
+	Register events (PLAYER_CHAT, PLAYER_COMMAND, PLAYER_LOGIN, PLAYER_QUIT)
+
+Channels:
+	Will be defined in an xml file. Will contain a constructor, which automatically loads all the values from a file.
+	Values to be held:
+		String name; - Name of channel
+		int range; - Range in blocks. 0 for Global channel.
+		boolean rpState; - True if the channel is IC-focused.
+		
+	
