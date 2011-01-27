@@ -14,9 +14,11 @@ public class MessageFormatting {
 	
 	private int line = 54;
 	
-	public String encodeLocalMessage(Player player, Chatting instance, String message, Channel channel){
-		// TODO: Add multi-coloured lines support.
+	public String encodeLocalMessage(Player player, Chatting instance, String message, Channel channel, boolean ic){
+		// TODO: Some cool message formatting. Suggestions?
+		String name = instance.getIcName(player);
 		
+		return name + ": " + message; 
 	}
 	
 	public String encodeGlobalMessage(Player player, Chatting instance, String message, Channel channel){

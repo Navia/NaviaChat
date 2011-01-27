@@ -1,6 +1,7 @@
 package org.navia.mcandze.chatting;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
@@ -67,6 +68,8 @@ public class Chatting extends JavaPlugin{
 	
 	private List<Channel> channels;
 	
+	private List<Player> playerState;
+	
 	private HashMap<Player, String> icnames;
 	
 	public PermissionHandler permissions = null;
@@ -97,6 +100,7 @@ public class Chatting extends JavaPlugin{
 		dataSource = new ChattingDataSource(this);
 		dataSource.initialize();
 		channels = dataSource.getChannels();
+		playerState = new ArrayList<Player>();
 		loadChannels();
 		loadPlugin();
 		PluginManager pm = getServer().getPluginManager();
@@ -119,6 +123,18 @@ public class Chatting extends JavaPlugin{
 		
 		for (Channel c: dataSource.loadNewChannels()){
 			channels.add(c);
+		}
+		for (Channel c: channels){
+			for (Player p: getServer().getOnlinePlayers()){
+				
+				if (c.isDefaultOnLogin()){
+					playerChannels.get(p).add(c);
+				}
+				if (c.isFocusedOnDefault()){
+					playerFocused.remove(p);
+					playerFocused.put(p, c);
+				}
+			}
 		}
 	}
 	
@@ -182,6 +198,10 @@ public class Chatting extends JavaPlugin{
 	 */
 	public String getIcName(Player player){
 		return icnames.get(player);
+	}
+	
+	public boolean playerIsIc(Player player){
+		return playerState.contains(player);
 	}
 	
 	/**

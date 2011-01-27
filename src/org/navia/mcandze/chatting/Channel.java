@@ -29,6 +29,18 @@ public class Channel {
 		this.focusOnDefault = focusOnDefault;
 	}
 	
+	public boolean isDefaultOnLogin(){
+		return joinOnLogin;
+	}
+	
+	public boolean isFocusedOnDefault(){
+		return focusOnDefault;
+	}
+	
+	public boolean isIc(){
+		return ic;
+	}
+	
 	public String getShortCut(){
 		return this.sCut;
 	}
@@ -37,7 +49,7 @@ public class Channel {
 		return range != 0;
 	}
 	
-	public void sendMessage(String message, Player sender){
+	public void sendMessage(String message, Player sender, boolean ic){
 		if (plugin.isUsingPermissions()){
 			if (!new MessageFormatting().playerCanTalk(sender, plugin)){
 				return;
@@ -46,7 +58,7 @@ public class Channel {
 		if (this.isLocal()){
 			for (Player p: plugin.getServer().getOnlinePlayers()){
 				if (isInDistance(p, sender.getLocation()) && plugin.playerIsInChannel(p, this)){
-					sendLocally(message, sender, p);
+					sendLocally(message, sender, p, ic);
 				}
 			}
 		} else {
@@ -54,8 +66,8 @@ public class Channel {
 		}
 	}
 	
-	public void sendLocally(String message, Player sender, Player receiver){
-		String newMessage = (new MessageFormatting()).encodeLocalMessage(sender, plugin, message, this);
+	public void sendLocally(String message, Player sender, Player receiver, boolean ic){
+		String newMessage = (new MessageFormatting()).encodeLocalMessage(sender, plugin, message, this, ic);
 		receiver.sendMessage(newMessage);
 	}
 	
