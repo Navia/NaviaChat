@@ -3,7 +3,11 @@ package org.navia.mcandze.chatting;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerListener;
-
+/**
+ * The Player Listener.
+ * @author Andreas
+ *
+ */
 public class ChattingPlayerListener extends PlayerListener{
 	Chatting plugin;
 	

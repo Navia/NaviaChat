@@ -3,6 +3,11 @@ package org.navia.mcandze.chatting;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+/**
+ * This class represents a Channel.
+ * @author Andreas
+ *
+ */
 public class Channel {
 	public static Chatting plugin;
 	private int range;

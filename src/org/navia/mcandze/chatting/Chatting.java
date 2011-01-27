@@ -43,10 +43,9 @@ import com.nijikokun.bukkit.Permissions.Permissions;
  */
 
 /**
- * The above license only applies to all classes, but iProperty.java
- * It is made by Nijikokun, thus a different license.
+ * The above license applies to all classes, but iProperty.java
+ * which is made by Nijikokun. The license is included in the class.
  */
-
 /**
  * 
  * @author McAndze

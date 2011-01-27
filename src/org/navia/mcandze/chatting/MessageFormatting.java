@@ -4,7 +4,11 @@ import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-
+/**
+ * Holds methods for encoding messages, for specific channels.
+ * @author Andreas
+ *
+ */
 public class MessageFormatting {
 	
 	

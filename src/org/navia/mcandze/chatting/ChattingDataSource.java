@@ -13,7 +13,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.nijikokun.bukkit.iProperty;
-
+/**
+ * Will hold methods for writing and loading to and from different data sources. 
+ * Main focus now, is SQLite/Flatfile.
+ * It will later support Flatfile-only + MySQL/Flatfile.
+ * 
+ * Flatfiles are used for configuration, if used with SQL.
+ * @author andreas
+ *
+ */
 public class ChattingDataSource {
 	public static Chatting plugin;
 	public final static String CHANNELS_DATABASE = "jdbc:sqlite:channels.db";
