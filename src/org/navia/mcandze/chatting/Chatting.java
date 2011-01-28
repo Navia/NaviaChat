@@ -62,19 +62,9 @@ public class Chatting extends JavaPlugin{
 	
 	public boolean usingCharacterizationing;
 	
-	private HashMap<Player, List<Channel>> playerChannels;
-	
-	private HashMap<Player, Channel> playerFocused;
-	
-	private List<Channel> channels;
-	
-	private List<Player> playerState;
-	
-	private HashMap<Player, String> icnames;
-	
 	public PermissionHandler permissions = null;
 	
-	public ChattingDataSource dataSource;
+	private final ChannelManager = new ChannelManager();
 	
 	/**
 	 * Default constructor for a plugin.
@@ -97,11 +87,7 @@ public class Chatting extends JavaPlugin{
 	 * Default method
 	 */
 	public void onEnable(){
-		dataSource = new ChattingDataSource(this);
-		dataSource.initialize();
-		channels = dataSource.getChannels();
-		playerState = new ArrayList<Player>();
-		loadChannels();
+		
 		loadPlugin();
 		PluginManager pm = getServer().getPluginManager();
 		
@@ -115,28 +101,6 @@ public class Chatting extends JavaPlugin{
 		
 	}
 	
-	/**
-	 * Loads channels from a SQLite database, and loads new channels from a folder.
-	 */
-	public void loadChannels(){
-		channels = dataSource.getChannels();
-		
-		for (Channel c: dataSource.loadNewChannels()){
-			channels.add(c);
-		}
-		for (Channel c: channels){
-			for (Player p: getServer().getOnlinePlayers()){
-				
-				if (c.isDefaultOnLogin()){
-					playerChannels.get(p).add(c);
-				}
-				if (c.isFocusedOnDefault()){
-					playerFocused.remove(p);
-					playerFocused.put(p, c);
-				}
-			}
-		}
-	}
 	
 	/**
 	 * Checks if the Characterizationing plugin is installed.
@@ -190,46 +154,5 @@ public class Chatting extends JavaPlugin{
 	public boolean isUsingPermissions(){
 		return this.permissions != null;
 	}
-	
-	/**
-	 * Gets the In Character names of the player.
-	 * @param player
-	 * @return
-	 */
-	public String getIcName(Player player){
-		return icnames.get(player);
-	}
-	
-	public boolean playerIsIc(Player player){
-		return playerState.contains(player);
-	}
-	
-	/**
-	 * Checks if <player> is in channel.
-	 * @param player
-	 * @param channel
-	 * @return
-	 */
-	public boolean playerIsInChannel(Player player, Channel channel){
-		List<Channel> channels = playerChannels.get(player);
-		if (channels.contains(channel)){return true;}
-		return false;
-	}
-	
-	/**
-	 * Gets this player's focused channel.
-	 * @param player
-	 * @return
-	 */
-	public Channel getFocusedChannel(Player player){
-		return playerFocused.get(player);
-	}
-	
-	public void setFocusedChannel(String channel, Player player){
-		for (Channel c: channels){
-			if (c.getShortCut().equals("channel")){
-				playerFocused.put(player, c);
-			}
-		}
-	}
+
 }
