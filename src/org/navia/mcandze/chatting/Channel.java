@@ -13,12 +13,12 @@ public class Channel {
 	private int range;
 	private String name;
 	private String sCut;
-	private int color;
+	private String color;
 	private boolean ic;
 	private boolean joinOnLogin;
 	private boolean focusOnDefault;
 	
-	public Channel(Chatting plugin, int range, String name, String sCut, int color, boolean ic, boolean joinOnLogin, boolean focusOnDefault){
+	public Channel(Chatting plugin, int range, String name, String sCut, String color, boolean ic, boolean joinOnLogin, boolean focusOnDefault){
 		this.plugin = plugin;
 		this.range = range;
 		this.name = name;
@@ -57,12 +57,15 @@ public class Channel {
 		}
 		if (this.isLocal()){
 			for (Player p: plugin.getServer().getOnlinePlayers()){
-				if (isInDistance(p, sender.getLocation()) && plugin.playerIsInChannel(p, this)){
+				if (isInDistance(p, sender.getLocation()) && plugin.getChannelManager().playerIsInChannel(p, this)){
 					sendLocally(message, sender, p, ic);
 				}
 			}
 		} else {
-			sendGlobally(message, sender);
+			if (plugin.getChannelManager().playerIsInChannel(sender, this)){
+				sendGlobally(message, sender);
+			}
+			
 		}
 	}
 	
@@ -77,6 +80,8 @@ public class Channel {
 		}
 	}
 	
+	
+
 	public boolean isInDistance(Player receiver, Location sender){
 		double xP = 
 			Math.pow(sender.getX() - receiver.getLocation().getX(), 2);
@@ -88,5 +93,110 @@ public class Channel {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * @return the plugin
+	 */
+	public static Chatting getPlugin() {
+		return plugin;
+	}
+
+	/**
+	 * @param plugin the plugin to set
+	 */
+	public static void setPlugin(Chatting plugin) {
+		Channel.plugin = plugin;
+	}
+
+	/**
+	 * @return the range
+	 */
+	public int getRange() {
+		return range;
+	}
+
+	/**
+	 * @param range the range to set
+	 */
+	public void setRange(int range) {
+		this.range = range;
+	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * @return the sCut
+	 */
+	public String getsCut() {
+		return sCut;
+	}
+
+	/**
+	 * @param sCut the sCut to set
+	 */
+	public void setsCut(String sCut) {
+		this.sCut = sCut;
+	}
+
+	/**
+	 * @return the color
+	 */
+	public String getColor() {
+		return color;
+	}
+
+	/**
+	 * @param color the color to set
+	 */
+	public void setColor(String color) {
+		this.color = color;
+	}
+
+	/**
+	 * @return the joinOnLogin
+	 */
+	public boolean isJoinOnLogin() {
+		return joinOnLogin;
+	}
+
+	/**
+	 * @param joinOnLogin the joinOnLogin to set
+	 */
+	public void setJoinOnLogin(boolean joinOnLogin) {
+		this.joinOnLogin = joinOnLogin;
+	}
+
+	/**
+	 * @return the focusOnDefault
+	 */
+	public boolean isFocusOnDefault() {
+		return focusOnDefault;
+	}
+
+	/**
+	 * @param focusOnDefault the focusOnDefault to set
+	 */
+	public void setFocusOnDefault(boolean focusOnDefault) {
+		this.focusOnDefault = focusOnDefault;
+	}
+
+	/**
+	 * @param ic the ic to set
+	 */
+	public void setIc(boolean ic) {
+		this.ic = ic;
 	}
 }

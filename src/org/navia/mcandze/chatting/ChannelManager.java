@@ -1,5 +1,6 @@
 package org.navia.mcandze.chatting;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -13,11 +14,18 @@ public class ChannelManager {
 	
 	private List<Channel> channels;
 	
-	private List<Player> playerState;
+	private HashMap<Player, Boolean> playerState;
 	
 	private HashMap<Player, String> icnames;
 	
-	public ChattingDataSource dataSource;
+	private Chatting plugin;
+	
+	private ChattingDataSource dataSource;
+	
+	public ChannelManager(Chatting instance, ChattingDataSource dsInstance){
+		this.plugin = instance;
+		this.dataSource = dsInstance;
+	}
 	
 	public void playerChangeChannel(String channel, Player player){
 		Channel c;
@@ -29,9 +37,41 @@ public class ChannelManager {
 		
 	}
 	
+	public void initialize(){
+		loadChannels();
+		for (Player p: plugin.getServer().getOnlinePlayers()){
+			List<Channel> tmpr = new ArrayList<Channel>();
+			tmpr.add(getFirstDefaultChannel());
+			playerChannels.put(p, tmpr);
+		}
+	}
+	
+	public void addChannel(Channel c){
+		channels.add(c);
+	}
+	
+	public void playerLeaveChannel(String channel, Player player){
+		playerChannels.get(player).remove(getChannelWithShortcut(channel));
+		if (playerChannels.get(player).isEmpty()){
+			Channel newC = getFirstDefaultChannel();
+			if (newC == null){
+				player.sendMessage(ChatColor.RED + "ERROR: You have been put back in the last channel you were in. REASON: No default channels. Contact the server administrator.");
+			}
+		}
+	}
+	
 	public Channel getChannelWithShortcut(String name){
 		for (Channel c: channels){
-			if (c.getShortCut().equals("channel")){
+			if (c.getShortCut().equals(name)){
+				return c;
+			}
+		}
+		return null;
+	}
+	
+	public Channel getFirstDefaultChannel(){
+		for (Channel c: channels){
+			if (c.isDefaultOnLogin()){
 				return c;
 			}
 		}
@@ -40,12 +80,9 @@ public class ChannelManager {
 	
 	public void loadChannels(){
 		channels = dataSource.getChannels();
-		
-		for (Channel c: dataSource.loadNewChannels()){
-			channels.add(c);
-		}
+		dataSource.loadNewChannels();
 		for (Channel c: channels){
-			for (Player p: getServer().getOnlinePlayers()){
+			for (Player p: plugin.getServer().getOnlinePlayers()){
 				
 				if (c.isDefaultOnLogin()){
 					playerChannels.get(p).add(c);
@@ -63,7 +100,13 @@ public class ChannelManager {
 	}
 	
 	public boolean playerIsIc(Player player){
-		return playerState.contains(player);
+		/*if (playerState.containsKey(player)){
+			return playerState.get(player).booleanValue();
+		} else {
+			return false;
+		}*/
+		return false;
+		
 	}
 	
 	/**
@@ -88,8 +131,13 @@ public class ChannelManager {
 	}
 	
 	public void setFocusedChannel(Channel channel, Player player){
-		playerFocused.remove(player);
-		playerFocused.put(player, channel);
+		if (channels.contains(channel)){
+			playerFocused.remove(player);
+			playerFocused.put(player, channel);
+			return;
+		}
+		player.sendMessage(ChatColor.RED + "That channel does not exist!");
+		
 	}
 	
 	public void playerAddChannel(Channel c, Player p){

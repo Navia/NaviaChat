@@ -1,0 +1,14 @@
+name: Chatting
+main: org.navia.mcandze.chatting.Chatting
+version: 0.01
+commands:
+  ch:
+    description: Used for changing channels.
+    usage: |
+        Invalid use of /<command>. Examples:
+           /<command> g - Joins, and changes your focused channel, to the shortcutted channel 'g'.
+  leavechannel:
+    description: Used for leaving channels
+    usage: |
+        Invalid use of /<command>. Examples:
+           /<command> g = Leaves the shortcutted channel 'g'

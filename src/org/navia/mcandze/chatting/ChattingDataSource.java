@@ -30,7 +30,7 @@ public class ChattingDataSource {
 		+ "`range` tinyint NOT NULL DEFAULT '0',"
 		+ "`name` varchar(32) NOT NULL DEFAULT '',"
 		+ "`shortcut` varchar(32) NOT NULL DEFAULT '',"
-		+ "`color` tinyint NOT NULL DEFAULT 'F',"
+		+ "`color` varchar(2) NOT NULL DEFAULT 'f',"
 		+ "`ic` boolean NOT NULL DEFAULT '0',"
 		+ "`joinonlogin` boolean NOT NULL DEFAULT '0',"
 		+ "`focusondefault` boolean NOT NULL DEFAULT '0'"
@@ -78,6 +78,7 @@ public class ChattingDataSource {
 		Statement st = null;
 		try {
 			Connection conn = DriverManager.getConnection(CHANNELS_DATABASE);
+			conn.setAutoCommit(false);
 			st = conn.createStatement();
 			st.executeUpdate(CHANNELS_TABLE);
 			conn.commit();
@@ -113,13 +114,14 @@ public class ChattingDataSource {
 				String name = set.getString("name");
 				int range = set.getInt("range");
 				String sCut = set.getString("shortcut");
-				int color = set.getInt("color");
+				String color = set.getString("color");
 				boolean ic = set.getBoolean("ic");
 				boolean joinOnLogin = set.getBoolean("joinonlogin");
 				boolean focusOnDefault = set.getBoolean("focusondefault");
 				Channel channel = new Channel(plugin, range, name, sCut, color, ic, joinOnLogin, focusOnDefault);
 				channels.add(channel);
 			}
+			
 			log.info("[Chatting] " + size + " channels loaded.");
 		} catch (SQLException e){
 			log.log(Level.SEVERE, "[Chatting] Exception while loading table.", e);
@@ -138,24 +140,25 @@ public class ChattingDataSource {
 		return channels;
 	}
 	
-	public static List<Channel> loadNewChannels(){
-		File folder = new File("Chatting" + File.pathSeparator + "Data" + File.pathSeparator + "Config" + File.pathSeparator + "NewChannels");
+	public static void loadNewChannels(){
+		File folder = new File("Chatting" + File.separator + "Data" + File.separator + "Config" + File.separator + "NewChannels");
+		if (folder ==  null){
+			return;
+		}
 		File[] listOfFiles = folder.listFiles();
 		Logger log = Logger.getLogger("Minecraft");
-		List<Channel> channels = new ArrayList<Channel>();
 		
-		int index = 0;
-		
+		if (listOfFiles == null){
+			plugin.getServer().broadcastMessage("PIS!");
+			return;
+		}
 		for (File f: listOfFiles){
-			if (canConvertPropertyToChannel(f.getName())){
-				Channel c = convertPropertyToChannel(f.getName());
-				channels.add(c);
-				f.delete();
+			if (canConvertPropertyToChannel(f.getPath())){
+				Channel c = convertPropertyToChannel(f);
+				plugin.getChannelManager().addChannel(c);
 			}
 			
 		}
-		
-		return channels;
 	}
 	
 	public static boolean canConvertPropertyToChannel(String iPropertyfile){
@@ -174,12 +177,12 @@ public class ChattingDataSource {
 		return true;
 	}
 	
-	public static Channel convertPropertyToChannel(String iPropertyfile){
-		iProperty prop = new iProperty(iPropertyfile);
+	public static Channel convertPropertyToChannel(File iPropertyfile){
+		iProperty prop = new iProperty(iPropertyfile.getPath());
 		String name = prop.getString("name-of-channel");
 		String sCut = prop.getString("shortcut-name");
 		int range = prop.getInt("range-in-blocks");
-		int color = prop.getInt("color-of-chat");
+		String color = prop.getString("color-of-chat");
 		boolean ic = prop.getBoolean("is-in-character-focused");
 		boolean join = prop.getBoolean("join-on-login");
 		boolean focus = prop.getBoolean("focus-on-default");

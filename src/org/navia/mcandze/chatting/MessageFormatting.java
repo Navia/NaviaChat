@@ -16,18 +16,24 @@ public class MessageFormatting {
 	
 	public String encodeLocalMessage(Player player, Chatting instance, String message, Channel channel, boolean ic){
 		// TODO: Some cool message formatting. Suggestions?
-		String name = instance.getIcName(player);
+		String name = instance.getChannelManager().getIcName(player);
 		
 		return name + ": " + message; 
 	}
 	
 	public String encodeGlobalMessage(Player player, Chatting instance, String message, Channel channel){
-		
-		return null;
+		// ['Color''ChannelName']<'PlayerColor''PlayerName'> 'Message'
+		return "[§"
+		+ channel.getColor()
+		+ "]<"
+		+ instance.getPermissions().getGroupPrefix(instance.getPermissions().getGroup(player.getName()))
+		+ player.getName()
+		+ "> "
+		+ message;
 	}
 	
 	public boolean playerCanTalk(Player player, Chatting instance){
-		if ((instance).permissions.has(player, "chatting.chat.cantalk")){
+		if ((instance).getPermissions().has(player, "chatting.chat.cantalk")){
 			return true;
 		} else {
 			player.sendMessage(ChatColor.RED + "You are muted by an administrator.");

@@ -1,12 +1,11 @@
 package org.navia.mcandze.chatting;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.logging.Logger;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Server;
+import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
@@ -57,14 +56,16 @@ public class Chatting extends JavaPlugin{
 	private final ChattingPlayerListener playerListener = new ChattingPlayerListener(this);
 	// The Logger
 	private Logger log;
-	// 
+	// Is null if we don't use the Characterizationing plugin.
 	private Plugin Characterizationing;
+	// Handles channels, and the players that are in them.
+	private ChannelManager chManager;
 	
-	public boolean usingCharacterizationing;
+	private String permissionsNode = "chatting.chat";
 	
-	public PermissionHandler permissions = null;
+	private ChattingDataSource dataSource;
 	
-	private final ChannelManager = new ChannelManager();
+	private PermissionHandler permissions;
 	
 	/**
 	 * Default constructor for a plugin.
@@ -83,17 +84,65 @@ public class Chatting extends JavaPlugin{
 		log.info("[Chatting] " + pdfFile.getName() + " is enabled.");
 	}
 	
+	@Override
+	public boolean onCommand(Player player, Command command, String commandLabel, String[] args){
+		String commandName = command.getName();
+		
+		if (commandName.equalsIgnoreCase("ch")){
+			if (!(this).permissions.has(player, permissionsNode + "ch")){
+				player.sendMessage(ChatColor.RED + "You can not use that command.");
+				return true;
+			}
+			if (args.length != 1){
+				return false;
+			}
+			chManager.setFocusedChannel(chManager.getChannelWithShortcut(args[0]), player);
+			return true;
+		}
+		
+		if (commandName.equalsIgnoreCase("leavechannel")){
+			if (!(this).permissions.has(player, permissionsNode + "leavechannel")){
+				player.sendMessage(ChatColor.RED + "You can not use that command.");
+				return true;
+			}
+			if (args.length != 1){
+				return false;
+			}
+			chManager.playerLeaveChannel(args[0], player);
+		}
+		return false;
+	}
+	
 	/**
 	 * Default method
 	 */
 	public void onEnable(){
-		
+		permissions = null;
 		loadPlugin();
+		loadPermissions();
+		dataSource = new ChattingDataSource(this);
+		dataSource.initialize();
+		chManager = new ChannelManager(this, dataSource);
+		chManager.initialize();
 		PluginManager pm = getServer().getPluginManager();
 		
 		pm.registerEvent(Event.Type.PLAYER_CHAT, playerListener, Priority.Normal, this);
 	}
 	
+	/**
+	 * @return the permissions
+	 */
+	public PermissionHandler getPermissions() {
+		return permissions;
+	}
+
+	/**
+	 * @param permissions the permissions to set
+	 */
+	public void setPermissions(PermissionHandler permissions) {
+		this.permissions = permissions;
+	}
+
 	/**
 	 * Default method
 	 */
@@ -121,11 +170,9 @@ public class Chatting extends JavaPlugin{
 			Characterizationing = getServer().getPluginManager().getPlugin("Characterizationing");
 			if (Characterizationing != null){
 				log.info("[Chatting] " + "Established connection to Characterizationing");
-				usingCharacterizationing = true;
 				return;
 			}
 			Characterizationing = null;
-			usingCharacterizationing = false;
 		} catch(Exception e){
 			e.printStackTrace();
 		}
@@ -153,6 +200,10 @@ public class Chatting extends JavaPlugin{
 	 */
 	public boolean isUsingPermissions(){
 		return this.permissions != null;
+	}
+	
+	public ChannelManager getChannelManager(){
+		return chManager;
 	}
 
 }
