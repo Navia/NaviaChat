@@ -242,7 +242,7 @@ public class ChattingDataSource {
 		
 		Channel c = new Channel(plugin, range, name, sCut, color, ic, join, focus);
 		
-		log.info("FEJL ASDFASD");
+		log.info("[Chatting] Found new channel: " + iPropertyfile.getName());
 		
 		return c;
 	}

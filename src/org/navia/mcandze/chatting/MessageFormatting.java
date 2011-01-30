@@ -33,20 +33,25 @@ public class MessageFormatting {
 	public String encodeGlobalMessage(Player player, Chatting instance, String message, Channel channel){
 		// ['Color''ChannelName']<'PlayerColor''PlayerName'> 'Message'
 		String prefix;
+		String finalString;
+		String playerColor = "f";
 		if (instance.getPluginCommunicationManager().isUsingPermissions()){
 			prefix = instance.getPluginCommunicationManager().permissions.getGroupPrefix(instance.getPluginCommunicationManager().permissions.getGroup(player.getName())) + "_";
 		} else {
 			prefix = "";
 		}
 		
-		return "[§"
-		+ channel.getColor()
-		+ channel.getName()
-		+ "]<"
-		+ prefix
-		+ player.getName()
-		+ "> "
-		+ message;
+		// TODO: Playercolor, from Characterizationing plugin.
+		
+		finalString =
+			"§" + channel.getColor()
+			+ "[" + channel.getName() + "]"
+			+ "§" + playerColor + "<" + prefix + player.getDisplayName() + "> "
+			+ message;
+		
+		// Final String
+		
+		return finalString;
 	}
 	
 	public boolean playerCanTalk(Player player, Chatting instance){

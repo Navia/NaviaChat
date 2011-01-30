@@ -102,13 +102,17 @@ public class ChannelManager {
 		}
 	}
 	
+	public void setPlayerState(Player player, boolean ic){
+		if (playerState.containsKey(player)){
+			playerState.remove(player);
+		}
+		playerState.put(player, ic);
+	}
 	
 	public boolean playerIsIc(Player player){
-		/*if (playerState.containsKey(player)){
-			return playerState.get(player).booleanValue();
-		} else {
-			return false;
-		}*/
+		if (playerState.containsKey(player)){
+			return playerState.get(player);
+		}
 		return false;
 		
 	}

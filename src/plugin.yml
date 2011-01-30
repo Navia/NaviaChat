@@ -12,3 +12,9 @@ commands:
     usage: |
         Invalid use of /<command>. Examples:
            /<command> g = Leaves the shortcutted channel 'g'
+  ooc:
+    description: Sets your status to OOC.
+    usage: /ooc
+  ic:
+    description: Sets your status to IC
+    usage: /ic

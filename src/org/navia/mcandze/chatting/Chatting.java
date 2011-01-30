@@ -108,6 +108,29 @@ public class Chatting extends JavaPlugin{
 			chManager.playerLeaveChannel(args[0], player);
 			return true;
 		}
+		
+		if (commandName.equalsIgnoreCase("ooc")){
+			if (!(pluginCommunicationManager).permissions.has(player, permissionsNode + "ooc")){
+				player.sendMessage(ChatColor.RED + "You can not use that command.");
+				return true;
+			}
+			if (args.length != 0){
+				return false;
+			}
+			chManager.setPlayerState(player, false);
+			return true;
+		}
+		if (commandName.equalsIgnoreCase("ic")){
+			if (!(pluginCommunicationManager).permissions.has(player, permissionsNode + "ic")){
+				player.sendMessage(ChatColor.RED + "You can not use that command.");
+				return true;
+			}
+			if (args.length != 0){
+				return false;
+			}
+			chManager.setPlayerState(player, true);
+			return true;
+		}
 		return false;
 	}
 	
