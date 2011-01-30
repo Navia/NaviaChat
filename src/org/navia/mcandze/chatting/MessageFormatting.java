@@ -15,25 +15,42 @@ public class MessageFormatting {
 	private int line = 54;
 	
 	public String encodeLocalMessage(Player player, Chatting instance, String message, Channel channel, boolean ic){
-		// TODO: Some cool message formatting. Suggestions?
-		String name = instance.getChannelManager().getIcName(player);
+		// TODO: Characterizationing support, once that's done.
+		String name;
+		if (!instance.getPluginCommunicationManager().isUsingCharacterPlugin()){
+			name = player.getDisplayName();
+		}
+		// Temporary
+		name = player.getDisplayName();
+		//
+		if (ic){
+			name = "[OOC]" + name;
+		}
 		
 		return name + ": " + message; 
 	}
 	
 	public String encodeGlobalMessage(Player player, Chatting instance, String message, Channel channel){
 		// ['Color''ChannelName']<'PlayerColor''PlayerName'> 'Message'
+		String prefix;
+		if (instance.getPluginCommunicationManager().isUsingPermissions()){
+			prefix = instance.getPluginCommunicationManager().permissions.getGroupPrefix(instance.getPluginCommunicationManager().permissions.getGroup(player.getName())) + "_";
+		} else {
+			prefix = "";
+		}
+		
 		return "[§"
 		+ channel.getColor()
+		+ channel.getName()
 		+ "]<"
-		+ instance.getPermissions().getGroupPrefix(instance.getPermissions().getGroup(player.getName()))
+		+ prefix
 		+ player.getName()
 		+ "> "
 		+ message;
 	}
 	
 	public boolean playerCanTalk(Player player, Chatting instance){
-		if ((instance).getPermissions().has(player, "chatting.chat.cantalk")){
+		if (instance.getPluginCommunicationManager().permissions.has(player, "chatting.chat.cantalk")){
 			return true;
 		} else {
 			player.sendMessage(ChatColor.RED + "You are muted by an administrator.");

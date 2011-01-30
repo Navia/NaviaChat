@@ -9,7 +9,8 @@ import org.bukkit.entity.Player;
  *
  */
 public class Channel {
-	public static Chatting plugin;
+	private Chatting plugin;
+	private int index;
 	private int range;
 	private String name;
 	private String sCut;
@@ -18,8 +19,12 @@ public class Channel {
 	private boolean joinOnLogin;
 	private boolean focusOnDefault;
 	
+	public static int newIndex = 1;
+	
 	public Channel(Chatting plugin, int range, String name, String sCut, String color, boolean ic, boolean joinOnLogin, boolean focusOnDefault){
 		this.plugin = plugin;
+		this.index = newIndex;
+		newIndex++;
 		this.range = range;
 		this.name = name;
 		this.sCut = sCut;
@@ -27,6 +32,10 @@ public class Channel {
 		this.ic = ic;
 		this.joinOnLogin = joinOnLogin;
 		this.focusOnDefault = focusOnDefault;
+		if (index > newIndex){
+			newIndex = index;
+		}
+		newIndex++;
 	}
 	
 	public boolean isDefaultOnLogin(){
@@ -50,19 +59,19 @@ public class Channel {
 	}
 	
 	public void sendMessage(String message, Player sender, boolean ic){
-		if (plugin.isUsingPermissions()){
+		if (plugin.getPluginCommunicationManager().isUsingPermissions()){
 			if (!new MessageFormatting().playerCanTalk(sender, plugin)){
 				return;
 			}
 		}
 		if (this.isLocal()){
 			for (Player p: plugin.getServer().getOnlinePlayers()){
-				if (isInDistance(p, sender.getLocation()) && plugin.getChannelManager().playerIsInChannel(p, this)){
+				if (isInDistance(p, sender.getLocation()) && plugin.getChManager().playerIsInChannel(p, this)){
 					sendLocally(message, sender, p, ic);
 				}
 			}
 		} else {
-			if (plugin.getChannelManager().playerIsInChannel(sender, this)){
+			if (plugin.getChManager().playerIsInChannel(sender, this)){
 				sendGlobally(message, sender);
 			}
 			
@@ -93,20 +102,6 @@ public class Channel {
 			return true;
 		}
 		return false;
-	}
-	
-	/**
-	 * @return the plugin
-	 */
-	public static Chatting getPlugin() {
-		return plugin;
-	}
-
-	/**
-	 * @param plugin the plugin to set
-	 */
-	public static void setPlugin(Chatting plugin) {
-		Channel.plugin = plugin;
 	}
 
 	/**
@@ -198,5 +193,19 @@ public class Channel {
 	 */
 	public void setIc(boolean ic) {
 		this.ic = ic;
+	}
+	
+	/**
+	 * @return the index
+	 */
+	public int getIndex() {
+		return index;
+	}
+
+	/**
+	 * @param index the index to set
+	 */
+	public void setIndex(int index) {
+		this.index = index;
 	}
 }

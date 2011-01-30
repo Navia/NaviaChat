@@ -4,6 +4,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -27,6 +28,7 @@ public class ChattingDataSource {
 	public final static String CHANNELS_DATABASE = "jdbc:sqlite:channels.db";
 	
 	public final static String CHANNELS_TABLE = "CREATE TABLE `channelsTable` ("
+		+ "`id` INTEGER PRIMARY KEY,"
 		+ "`range` tinyint NOT NULL DEFAULT '0',"
 		+ "`name` varchar(32) NOT NULL DEFAULT '',"
 		+ "`shortcut` varchar(32) NOT NULL DEFAULT '',"
@@ -98,6 +100,61 @@ public class ChattingDataSource {
 		}
 	}
 	
+	public static void addChannel(Channel channel){
+		PreparedStatement ps = null;
+		Logger log = Logger.getLogger("Minecraft");
+		try{
+			Connection conn = DriverManager.getConnection(CHANNELS_DATABASE);
+			conn.setAutoCommit(false);
+			
+			ps = conn.prepareStatement("INSERT INTO channelsTable (id, range, name, shortcut, color, ic, joinonlogin, focusondefault) VALUES (?,?,?,?,?,?,?,?)");
+			ps.setInt(1, channel.getIndex());
+			ps.setInt(2, channel.getRange());
+			ps.setString(3, channel.getName());
+			ps.setString(4, channel.getShortCut());
+			ps.setString(5, channel.getColor());
+			ps.setBoolean(6, channel.isIc());
+			ps.setBoolean(7, channel.isDefaultOnLogin());
+			ps.setBoolean(8, channel.isFocusedOnDefault());
+			conn.commit();
+		} catch (SQLException ex) {
+            log.log(Level.SEVERE, "[Chating] Exception while adding channel.", ex);
+        } finally {
+            try {
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch (SQLException ex) {
+                log.log(Level.SEVERE, "[Chatting] Channel Insert Exception (on close)", ex);
+            }
+        }
+	}
+	
+	public static void removeChannel(Channel channel){
+		PreparedStatement ps = null;
+		ResultSet set = null;
+		Logger log = Logger.getLogger("Minecraft");
+		try{
+			Connection conn = DriverManager.getConnection("Minecraft");
+			conn.setAutoCommit(false);
+			
+			ps = conn.prepareStatement("DELETE FROM channelsTable WHERE id = ?");
+			ps.setInt(1, channel.getIndex());
+			ps.executeUpdate();
+			conn.commit();
+		} catch (SQLException ex) {
+            log.log(Level.SEVERE, "[Chatting] Channel deleting exception", ex);
+        } finally {
+            try {
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch (SQLException ex) {
+                log.log(Level.SEVERE, "[Chatting] Exception while deleting channel. (on close)", ex);
+            }
+        }
+	}
+	
 	public static List<Channel> getChannels(){
 		List<Channel> channels = new ArrayList<Channel>();
 		Statement st = null;
@@ -140,25 +197,20 @@ public class ChattingDataSource {
 		return channels;
 	}
 	
-	public static void loadNewChannels(){
-		File folder = new File("Chatting" + File.separator + "Data" + File.separator + "Config" + File.separator + "NewChannels");
-		if (folder ==  null){
-			return;
-		}
+	public static List<Channel> loadNewChannels(){
+		List<Channel> tmpr = new ArrayList<Channel>();
+		File folder = new File("plugins" + File.separator + "Chatting" + File.separator + "Data" + File.separator + "Config" + File.separator + "NewChannels");
 		File[] listOfFiles = folder.listFiles();
 		Logger log = Logger.getLogger("Minecraft");
 		
-		if (listOfFiles == null){
-			plugin.getServer().broadcastMessage("PIS!");
-			return;
-		}
 		for (File f: listOfFiles){
 			if (canConvertPropertyToChannel(f.getPath())){
 				Channel c = convertPropertyToChannel(f);
-				plugin.getChannelManager().addChannel(c);
+				tmpr.add(c);
 			}
 			
 		}
+		return tmpr;
 	}
 	
 	public static boolean canConvertPropertyToChannel(String iPropertyfile){
@@ -186,60 +238,12 @@ public class ChattingDataSource {
 		boolean ic = prop.getBoolean("is-in-character-focused");
 		boolean join = prop.getBoolean("join-on-login");
 		boolean focus = prop.getBoolean("focus-on-default");
+		Logger log = Logger.getLogger("Minecraft");
 		
 		Channel c = new Channel(plugin, range, name, sCut, color, ic, join, focus);
 		
+		log.info("FEJL ASDFASD");
+		
 		return c;
 	}
-	
-	/*public static boolean plTableExists(){
-		ResultSet rs = null;
-		
-		try {
-			Connection conn = DriverManager.getConnection(CHANNELS_DATABASE);
-			DatabaseMetaData dbm = conn.getMetaData();
-			rs = dbm.getTables(null, null, "playersTable", null);
-			
-			if (!rs.next()){
-				return false;
-			}
-			return true;
-		} catch(SQLException e){
-			Logger log = Logger.getLogger("Minecraft");
-			log.log(Level.SEVERE, "[Chatting] Exception while checking table.", e);
-			return false;
-		} finally {
-			try {
-				if (rs != null){
-					rs.close();
-				}
-			} catch (SQLException e){
-				Logger log = Logger.getLogger("Minecraft");
-				log.log(Level.SEVERE, "[Chatting] Exception on table check close.", e);
-			}
-		}
-	}*/
-	
-	/*public static void createPlTable(){
-		Statement st = null;
-		try {
-			Connection conn = DriverManager.getConnection(CHANNELS_DATABASE);
-			st = conn.createStatement();
-			st.executeUpdate(PLAYER_TABLE);
-			conn.commit();
-		} catch (SQLException e){
-			Logger log = Logger.getLogger("Minecraft");
-			log.log(Level.SEVERE, "[Chatting] Exception while creating table.", e);
-			
-		} finally {
-			try {
-				if (st != null){
-					st.close();
-				}
-			} catch (SQLException e){
-				Logger log = Logger.getLogger("Minecraft");
-				log.log(Level.SEVERE, "[Chatting] Could not create table. Exception on close.", e);
-			}
-		}
-	}*/
 }

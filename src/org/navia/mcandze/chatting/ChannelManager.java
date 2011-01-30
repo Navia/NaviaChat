@@ -16,15 +16,10 @@ public class ChannelManager {
 	
 	private HashMap<Player, Boolean> playerState;
 	
-	private HashMap<Player, String> icnames;
-	
 	private Chatting plugin;
-	
-	private ChattingDataSource dataSource;
 	
 	public ChannelManager(Chatting instance, ChattingDataSource dsInstance){
 		this.plugin = instance;
-		this.dataSource = dsInstance;
 	}
 	
 	public void playerChangeChannel(String channel, Player player){
@@ -38,6 +33,11 @@ public class ChannelManager {
 	}
 	
 	public void initialize(){
+		playerChannels = new HashMap<Player, List<Channel>>();
+		playerFocused = new HashMap<Player, Channel>();
+		channels = new ArrayList<Channel>();
+		playerState = new HashMap<Player, Boolean>();
+		
 		loadChannels();
 		for (Player p: plugin.getServer().getOnlinePlayers()){
 			List<Channel> tmpr = new ArrayList<Channel>();
@@ -51,12 +51,17 @@ public class ChannelManager {
 	}
 	
 	public void playerLeaveChannel(String channel, Player player){
+		if (!playerChannels.containsKey(player))
+			player.sendMessage(ChatColor.RED + "You are not in a channel!");
 		playerChannels.get(player).remove(getChannelWithShortcut(channel));
-		if (playerChannels.get(player).isEmpty()){
-			Channel newC = getFirstDefaultChannel();
-			if (newC == null){
-				player.sendMessage(ChatColor.RED + "ERROR: You have been put back in the last channel you were in. REASON: No default channels. Contact the server administrator.");
+		if (!playerChannels.get(player).isEmpty()){
+			for (Channel c: playerChannels.get(player)){
+				if (c.isDefaultOnLogin()){
+					setFocusedChannel(c, player);
+				}
 			}
+		} else {
+			player.sendMessage("You are not in any channels. Chat has been disabled.");
 		}
 	}
 	
@@ -79,8 +84,10 @@ public class ChannelManager {
 	}
 	
 	public void loadChannels(){
-		channels = dataSource.getChannels();
-		dataSource.loadNewChannels();
+		channels = plugin.getDataSource().getChannels();
+		for (Channel c: plugin.getDataSource().loadNewChannels()){
+			channels.add(c);
+		}
 		for (Channel c: channels){
 			for (Player p: plugin.getServer().getOnlinePlayers()){
 				
@@ -95,9 +102,6 @@ public class ChannelManager {
 		}
 	}
 	
-	public String getIcName(Player player){
-		return icnames.get(player);
-	}
 	
 	public boolean playerIsIc(Player player){
 		/*if (playerState.containsKey(player)){
@@ -127,12 +131,18 @@ public class ChannelManager {
 	 * @return
 	 */
 	public Channel getFocusedChannel(Player player){
+		if (!playerChannels.containsKey(player))
+			return null;
+		if (!playerFocused.containsKey(player))
+			return null;
 		return playerFocused.get(player);
 	}
 	
 	public void setFocusedChannel(Channel channel, Player player){
 		if (channels.contains(channel)){
-			playerFocused.remove(player);
+			if (playerFocused.containsKey(player)){
+				playerFocused.remove(player);
+			}
 			playerFocused.put(player, channel);
 			return;
 		}
@@ -141,8 +151,14 @@ public class ChannelManager {
 	}
 	
 	public void playerAddChannel(Channel c, Player p){
-		if (!playerChannels.get(p).contains(p)){
-			playerChannels.get(p).add(c);
+		if (!playerChannels.containsKey(p)){
+			List<Channel> tmpr = new ArrayList<Channel>();
+			tmpr.add(c);
+			playerChannels.put(p, tmpr);
+		} else {
+			if (!playerChannels.get(p).contains(c)){
+				playerChannels.get(p).add(c);
+			}
 		}
 	}
 }

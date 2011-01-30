@@ -9,14 +9,13 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.navia.mcandze.chatting.plugins.PluginCommunicationManager;
 
 import com.nijiko.permissions.PermissionHandler;
-import com.nijikokun.bukkit.Permissions.Permissions;
 
 /**
  * This program is free software. It comes without any warranty, to
@@ -56,16 +55,14 @@ public class Chatting extends JavaPlugin{
 	private final ChattingPlayerListener playerListener = new ChattingPlayerListener(this);
 	// The Logger
 	private Logger log;
-	// Is null if we don't use the Characterizationing plugin.
-	private Plugin Characterizationing;
 	// Handles channels, and the players that are in them.
 	private ChannelManager chManager;
 	
-	private String permissionsNode = "chatting.chat";
+	private PluginCommunicationManager pluginCommunicationManager;
 	
 	private ChattingDataSource dataSource;
 	
-	private PermissionHandler permissions;
+	private String permissionsNode = "chatting.chat.";
 	
 	/**
 	 * Default constructor for a plugin.
@@ -89,19 +86,19 @@ public class Chatting extends JavaPlugin{
 		String commandName = command.getName();
 		
 		if (commandName.equalsIgnoreCase("ch")){
-			if (!(this).permissions.has(player, permissionsNode + "ch")){
+			if (!pluginCommunicationManager.permissions.has(player, permissionsNode + "ch")){
 				player.sendMessage(ChatColor.RED + "You can not use that command.");
 				return true;
 			}
 			if (args.length != 1){
 				return false;
 			}
-			chManager.setFocusedChannel(chManager.getChannelWithShortcut(args[0]), player);
+			chManager.playerChangeChannel(args[0], player);
 			return true;
 		}
 		
 		if (commandName.equalsIgnoreCase("leavechannel")){
-			if (!(this).permissions.has(player, permissionsNode + "leavechannel")){
+			if (!(pluginCommunicationManager).permissions.has(player, permissionsNode + "leavechannel")){
 				player.sendMessage(ChatColor.RED + "You can not use that command.");
 				return true;
 			}
@@ -109,6 +106,7 @@ public class Chatting extends JavaPlugin{
 				return false;
 			}
 			chManager.playerLeaveChannel(args[0], player);
+			return true;
 		}
 		return false;
 	}
@@ -117,30 +115,62 @@ public class Chatting extends JavaPlugin{
 	 * Default method
 	 */
 	public void onEnable(){
-		permissions = null;
-		loadPlugin();
-		loadPermissions();
+		pluginCommunicationManager = new PluginCommunicationManager(this);
+		pluginCommunicationManager.initialize();
+		
 		dataSource = new ChattingDataSource(this);
 		dataSource.initialize();
+		
 		chManager = new ChannelManager(this, dataSource);
 		chManager.initialize();
 		PluginManager pm = getServer().getPluginManager();
 		
 		pm.registerEvent(Event.Type.PLAYER_CHAT, playerListener, Priority.Normal, this);
 	}
-	
+
 	/**
-	 * @return the permissions
+	 * @return the chManager
 	 */
-	public PermissionHandler getPermissions() {
-		return permissions;
+	public ChannelManager getChManager() {
+		return chManager;
 	}
 
 	/**
-	 * @param permissions the permissions to set
+	 * @param chManager the chManager to set
 	 */
-	public void setPermissions(PermissionHandler permissions) {
-		this.permissions = permissions;
+	public void setChManager(ChannelManager chManager) {
+		this.chManager = chManager;
+	}
+	
+	
+
+	/**
+	 * @return the pluginCommunicationManager
+	 */
+	public PluginCommunicationManager getPluginCommunicationManager() {
+		return pluginCommunicationManager;
+	}
+
+	/**
+	 * @param pluginCommunicationManager the pluginCommunicationManager to set
+	 */
+	public void setPluginCommunicationManager(
+			PluginCommunicationManager pluginCommunicationManager) {
+		this.pluginCommunicationManager = pluginCommunicationManager;
+	}
+
+	/**
+	 * @return the dataSource
+	 */
+	public ChattingDataSource getDataSource() {
+		return dataSource;
+	}
+
+	/**
+	 * @param dataSource the dataSource to set
+	 */
+	public void setDataSource(ChattingDataSource dataSource) {
+		this.dataSource = dataSource;
 	}
 
 	/**
@@ -148,62 +178,6 @@ public class Chatting extends JavaPlugin{
 	 */
 	public void onDisable(){
 		
-	}
-	
-	
-	/**
-	 * Checks if the Characterizationing plugin is installed.
-	 * @return
-	 */
-	public boolean isUsingCharacterPlugin(){
-		if (Characterizationing == null){
-			return false;
-		}
-		return true;
-	}
-	
-	/**
-	 * Loads Characterizationing. 
-	 */
-	public void loadPlugin(){
-		try {
-			Characterizationing = getServer().getPluginManager().getPlugin("Characterizationing");
-			if (Characterizationing != null){
-				log.info("[Chatting] " + "Established connection to Characterizationing");
-				return;
-			}
-			Characterizationing = null;
-		} catch(Exception e){
-			e.printStackTrace();
-		}
-	}
-	
-	/**
-	 * Loads the permissions plugin.
-	 */
-	public void loadPermissions(){
-		Plugin test = getServer().getPluginManager().getPlugin("Permissions");
-		if (this.permissions == null){
-			if (test != null){
-				this.permissions = ((Permissions)test).getHandler();
-			} else {
-				log.warning("[Chatting] " + " Running WITHOUT the Permissions plugin! All commands are unrestricted.");
-				
-			}
-		}
-		
-	}
-	
-	/**
-	 * Checks if using Permissions.
-	 * @return
-	 */
-	public boolean isUsingPermissions(){
-		return this.permissions != null;
-	}
-	
-	public ChannelManager getChannelManager(){
-		return chManager;
 	}
 
 }
