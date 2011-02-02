@@ -1,6 +1,6 @@
-name: Chatting
-main: org.navia.mcandze.chatting.Chatting
-version: 0.01
+name: NaviaChat
+main: org.navia.mcandze.naviachat.NaviaChat
+version: 0.2.02
 commands:
   ch:
     description: Used for changing channels.
@@ -12,6 +12,13 @@ commands:
     usage: |
         Invalid use of /<command>. Examples:
            /<command> g = Leaves the shortcutted channel 'g'
+  channel:
+    description: Used for managing channels.
+    usage: |
+        Invalid use. Examples:
+           /<command> settings cmd true
+           /<command> list - Lists channels.
+           /<command> ban [Player] - Bans a player from current channel.
   ooc:
     description: Sets your status to OOC.
     usage: /ooc
