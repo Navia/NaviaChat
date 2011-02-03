@@ -1,6 +1,6 @@
 name: NaviaChat
 main: org.navia.mcandze.naviachat.NaviaChat
-version: 0.2.02
+version: 0.2.05
 commands:
   ch:
     description: Used for changing channels.
@@ -25,3 +25,6 @@ commands:
   ic:
     description: Sets your status to IC
     usage: /ic
+  t:
+    description: Used for messaging.
+    usage: /tell <Player> <Message>

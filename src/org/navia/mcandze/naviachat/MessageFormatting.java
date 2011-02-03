@@ -36,9 +36,9 @@ public class MessageFormatting {
 		String finalString;
 		String playerColor = "f";
 		if (instance.getPluginCommunicationManager().isUsingPermissions()){
-			prefix = instance.getPluginCommunicationManager().permissions.getGroupPrefix(instance.getPluginCommunicationManager().permissions.getGroup(player.getName())) + "_";
+			prefix = instance.getPluginCommunicationManager().permissions.getGroupPrefix(instance.getPluginCommunicationManager().permissions.getGroup(player.getName()));
 		} else {
-			prefix = "";
+			prefix = "f";
 		}
 		
 		// TODO: Playercolor, from Characterizationing plugin.
@@ -46,7 +46,7 @@ public class MessageFormatting {
 		finalString =
 			"§" + channel.getColor()
 			+ "[" + channel.getName() + "]"
-			+ "§" + playerColor + "<" + prefix + player.getDisplayName() + "> "
+			+ "§" + playerColor + "<" + "§" + prefix + player.getDisplayName() + "§f> "
 			+ message;
 		
 		// Final String
@@ -54,8 +54,8 @@ public class MessageFormatting {
 		return finalString;
 	}
 	
-	public boolean playerCanTalk(Player player, NaviaChat instance){
-		if (instance.getPluginCommunicationManager().permissions.has(player, "NaviaChat.chat.cantalk")){
+	public static boolean playerCanTalk(Player player, NaviaChat instance){
+		if (instance.getPluginCommunicationManager().permissions.has(player, "naviachat.chat.cantalk")){
 			return true;
 		} else {
 			player.sendMessage(ChatColor.RED + "You are muted by an administrator.");

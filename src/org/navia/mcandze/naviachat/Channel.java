@@ -1,9 +1,11 @@
 package org.navia.mcandze.naviachat;
 
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -145,18 +147,18 @@ public class Channel {
 	
 	public void sendMessage(String message, Player sender, boolean ic){
 		Logger log = Logger.getLogger("Minecraft");
-		if (plugin.getPluginCommunicationManager().isUsingPermissions()){
-			if (!new MessageFormatting().playerCanTalk(sender, plugin)){
-				return;
-			}
-		}
 		if (this.isLocal()){
 			String newMessage=MessageFormatting.encodeLocalMessage(sender, plugin, message, this, ic);
 			log.info("[NaviaChat] " + newMessage);
+			int anyone = 0;
 			for (Player p: plugin.getServer().getOnlinePlayers()){
 				if (isInDistance(p, sender.getLocation()) && plugin.getChManager().playerIsInChannel(p, this) && !isPlayerBanned(p)){
 					p.sendMessage(newMessage);
+					anyone++;
 				}
+			}
+			if (anyone == 0){
+				noOneIsNear(sender);
 			}
 		} else {
 			if (plugin.getChManager().playerIsInChannel(sender, this)){
@@ -172,7 +174,11 @@ public class Channel {
 		}
 	}
 	
-	
+	public void noOneIsNear(Player p){
+		String[] messages = {"You look around, but can't see anyone in sight.", "No one is around to hear you", "Your voice gets lost among the natural ambience."};
+		Random test = new Random();
+		p.sendMessage(ChatColor.GREEN + messages[test.nextInt(messages.length)]);
+	}
 
 	public boolean isInDistance(Player receiver, Location sender){
 		double xP = 

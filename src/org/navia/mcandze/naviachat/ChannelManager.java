@@ -13,7 +13,7 @@ public class ChannelManager {
 	
 	private HashMap<Player, Channel> playerFocused;
 	
-	private List<Channel> channels;
+	public List<Channel> channels;
 	
 	private HashMap<Player, Boolean> playerState;
 	

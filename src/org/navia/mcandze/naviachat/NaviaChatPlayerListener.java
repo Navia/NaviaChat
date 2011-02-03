@@ -19,6 +19,10 @@ public class NaviaChatPlayerListener extends PlayerListener{
 		ChannelManager cm = plugin.getChManager();
 		Channel c = cm.getFocusedChannel(event.getPlayer());
 		String message;
+		if (!plugin.getPluginCommunicationManager().permissions.has(event.getPlayer(), "naviachat.chat.cantalk")){
+			event.setCancelled(true);
+			return;
+		}
 		if (!plugin.settings.isUsingCommands()){
 			if (event.getMessage().startsWith(".")){
 				message = event.getMessage().substring(0);
@@ -44,6 +48,10 @@ public class NaviaChatPlayerListener extends PlayerListener{
 	
 	public void onPlayerLogin(PlayerEvent event){
 		plugin.getChManager().playerChangeChannel(plugin.getChManager().getFirstDefaultChannel().getsCut(), event.getPlayer());
+		for (Channel c: plugin.getChManager().channels){
+			plugin.getChManager().playerAddChannel(c, event.getPlayer());
+		}
+		
 	}
 	
 }

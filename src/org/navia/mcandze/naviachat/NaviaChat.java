@@ -111,6 +111,27 @@ public class NaviaChat extends JavaPlugin{
 			}
 			
 			commands.executeChannelCmd(player, args);
+		} else if (commandName.equalsIgnoreCase("t")){
+			if (!pluginCommunicationManager.permissions.has(player, "naviachat.chat.tell")){
+				player.sendMessage("You don't have permission to do that.");
+				return true;
+			}
+			if (args.length < 1){
+				return false;
+			}
+			Player p;
+			if (!(p = getServer().getPlayer(args[0])).isOnline()){
+				player.sendMessage("That player isn't online.");
+				return true;
+			}
+			int len = args.length;
+			String message = "";
+			for (int i = 1; i < len; i++){
+				message = message + " " + args[i];
+			}
+			p.sendMessage(player.getName() + ": " + message);
+			player.sendMessage("To " + p.getName() + ": " + message);
+			return true;
 		}
 		return false;
 	}
