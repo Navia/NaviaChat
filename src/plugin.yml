@@ -1,6 +1,6 @@
 name: NaviaChat
-main: org.navia.mcandze.naviachat.NaviaChat
-version: 0.2.05
+main: com.landsofnavia.mcandze.naviachat.NaviaChat
+version: 1.0.1
 commands:
   ch:
     description: Used for changing channels.
@@ -16,15 +16,11 @@ commands:
     description: Used for managing channels.
     usage: |
         Invalid use. Examples:
-           /<command> settings cmd true
            /<command> list - Lists channels.
            /<command> ban [Player] - Bans a player from current channel.
-  ooc:
-    description: Sets your status to OOC.
-    usage: /ooc
-  ic:
-    description: Sets your status to IC
-    usage: /ic
   t:
     description: Used for messaging.
-    usage: /tell <Player> <Message>
+    usage: /t <Player> <Message>
+  me:
+    description: Used for making emotes.
+    usage: /me <Action>
